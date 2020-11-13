@@ -3,9 +3,12 @@ package com.lyq.springbootdemo.Controller.DataSource;
 import com.lyq.springbootdemo.Entity.DataSource.Autoetl_procedure;
 import com.lyq.springbootdemo.Repository.DataSource.Autoetl_procedureRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /*
  *存储过程配置
@@ -56,6 +59,23 @@ public class Autoetl_procedureController {
             //System.out.println(id);
             autoetlProcedureRepository.deleteById( id );
         }
+    }
+
+    //通过工作流主键查询节点
+    @GetMapping("/findByPId/{id}/{page}/{size}")
+    public Page<Autoetl_procedure> findByPId(@PathVariable("id") Integer id,
+                                             @PathVariable("page") Integer page, @PathVariable("size") Integer size){
+        PageRequest pageable = PageRequest.of(page-1,size);
+        Autoetl_procedure procedure = new Autoetl_procedure();
+        procedure.setDatasourceid( id );
+        Example<Autoetl_procedure> node = Example.of( procedure );
+        return autoetlProcedureRepository.findAll(node,pageable);
+    }
+    //搜索框模糊查询
+    @GetMapping("/findByNameLike/{name}")
+    public List<Autoetl_procedure> findByNameLike(@PathVariable("name") String name){
+        System.out.println(name);
+        return autoetlProcedureRepository.findByNameLike( name );
     }
 
 }

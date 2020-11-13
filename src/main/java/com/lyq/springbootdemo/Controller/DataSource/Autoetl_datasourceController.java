@@ -7,6 +7,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.List;
 
 /*
@@ -64,5 +66,33 @@ public class Autoetl_datasourceController {
     public List<Autoetl_datasource> findByNameLike(@PathVariable("name") String name){
         System.out.println(name);
         return autoetlDatasourceRepository.findByNameLike( name );
+    }
+    @GetMapping("/DataBase/{id}")
+    public Connection DataBase(@PathVariable("id") Integer id){
+        Autoetl_datasource autoetl_datasource = autoetlDatasourceRepository.findById( id ).get();
+        Connection con = null;
+        String driver = autoetl_datasource.getDriver();
+        String url = autoetl_datasource.getDburl();
+        String username = autoetl_datasource.getDbuser();
+        String password = autoetl_datasource.getDbpassword();
+        try {
+            Class.forName(driver);
+            con = DriverManager.getConnection(url, username, password);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return con;
+    }
+
+    @PutMapping("/testDataBase/{id}")
+    public String testDataBase(@PathVariable("id") Integer id){
+        Connection con= null;
+        con = DataBase(id);
+        if(con != null){
+            return "数据库连接正常！";
+        }else{
+            return "数据库连接失败！";
+        }
     }
 }
